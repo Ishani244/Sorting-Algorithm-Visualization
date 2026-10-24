@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="description" content="Interactive Design and Analysis of Algorithms sorting visualizer with step-by-step educational cards, pointer tracking, live pseudocode, and viva defense toolkit.">
+  <meta name="theme-color" content="#090d16">
+  <title>DAA Sorting Lab — Educational Sorting Visualizer</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell"> 
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">
+          <span class="brand-icon">⚡</span>
+          <span class="brand-text-mark">DAA</span>
+        </div>
+        <div class="brand-info">
+          <div class="brand-title-wrap">
+            <h1>Sorting Algorithm Visualizer</h1>
+            <!-- <span class="version-tag">Viva Lab 2.0</span> -->
+          </div>
+          <p class="brand-sub">Design &amp; Analysis of Algorithms · Interactive Step-by-Step Lab</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button id="mobileControlToggle" class="mobile-toggle-btn" aria-label="Toggle Controls Menu">
+          <span class="icon">⚙️</span>
+          <span class="label">Controls</span>
+        </button>
+        <button id="soundToggleBtn" class="pill-btn sound-btn" title="Toggle audio synthesizer sound effects" aria-label="Toggle sound">
+          <span id="soundIcon">🔊</span> <span class="btn-text">Sound: <strong id="soundStatusText">On</strong></span>
+        </button>
+        <button id="themeBtn" class="icon-btn theme-btn" title="Toggle theme (Light / Dark)" aria-label="Toggle theme">☀</button>
+      </div>
+    </header>
+
+    <!-- HERO HEADER WITH VIEW SELECTOR -->
+    <section class="hero-grid">
+      <div class="hero-card intro-card">
+        <div class="card-glow-bg"></div>
+        <div class="eyebrow">
+          <span class="pulse-indicator"></span>
+          <span>ALGORITHM UNDERSTANDING</span>
+        </div>
+        <h2>Understand every swap, pointer, and invariant.</h2>
+        <p>
+          Standard visualizers flash bars too fast to explain any sorting algorithm. Here, you see <b>exact element cards</b>, 
+          <b>floating pointers (<span class="code-span">i</span>, <span class="code-span">j</span>, <span class="code-span">pivot</span>, <span class="code-span">min_idx</span>)</b>, 
+          <b>clean Python pseudocode</b>, and a <b>plain-English "Why?" explanation</b> for every single operation.
+        </p>
+
+        <!-- Quick Dataset Presets -->
+        <div class="quick-preset-bar">
+          <span class="quick-label">⚡ Quick Presets:</span>
+          <div class="quick-chip-group">
+            <button type="button" class="quick-chip" data-preset="vivaClassic" title="Standard textbook array [64, 34, 25, 12, 22, 11, 90]">🎓 Viva Classic</button>
+            <button type="button" class="quick-chip" data-preset="reversed" title="Reverse sorted array (Worst-case)">⚠️ Reverse</button>
+            <button type="button" class="quick-chip" data-preset="nearly" title="Nearly sorted array">✨ Nearly Sorted</button>
+            <button type="button" class="quick-chip active" data-preset="random" title="Random numbers">🎲 Random</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-card quick-stat">
+        <div class="card-glow-bg"></div>
+        <div class="stat-header">
+          <span class="stat-caption">Active Algorithm</span>
+          <span class="live-pill" id="algoCategoryBadge">Comparison-based</span>
+        </div>
+        <div class="stat-main">
+          <strong id="heroAlgorithm">Bubble Sort</strong>
+          <small id="heroSummary">Stable · In-place · Adaptive</small>
+        </div>
+        <div class="view-mode-toggle" role="group" aria-label="Visualizer Mode">
+          <button id="viewModeCard" class="mode-tab active" title="Numbered cards with pointer badges — best for viva understanding">
+            🎓 Viva Card View
+          </button>
+          <button id="viewModeBar" class="mode-tab" title="Proportional bar chart — best for macroscopic scale">
+            📊 Bar Spectrum View
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- MAIN WORKSPACE -->
+    <main class="workspace">
+      <!-- SIDEBAR CONTROLS -->
+      <aside class="control-panel panel" id="controlPanel">
+        <div class="panel-title-row">
+          <div>
+            <h3>Experiment Setup</h3>
+            <p>Select algorithm, array pattern, and speed.</p>
+          </div>
+          <span class="live-dot">READY</span>
+        </div>
+
+        <div class="control-group">
+          <label class="field-label" for="algorithmSelect">Algorithm</label>
+          <div class="select-wrapper">
+            <select id="algorithmSelect" class="select-control">
+              <option value="bubble">Bubble Sort</option>
+              <option value="selection">Selection Sort</option>
+              <option value="insertion">Insertion Sort</option>
+              <option value="merge">Merge Sort</option>
+              <option value="quick">Quick Sort</option>
+              <option value="heap">Heap Sort</option>
+              <option value="shell">Shell Sort</option>
+              <option value="counting">Counting Sort</option>
+            </select>
+            <span class="select-chevron">▾</span>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="field-label" for="presetSelect">Input Pattern / Preset</label>
+          <div class="select-wrapper">
+            <select id="presetSelect" class="select-control">
+              <option value="random" selected>Random Array</option>
+              <option value="vivaClassic">🎓 Viva Textbook Classic [64, 34, 25, 12, 22, 11, 90]</option>
+              <option value="reversed">Reverse Sorted (Worst Case)</option>
+              <option value="nearly">Nearly Sorted</option>
+              <option value="duplicates">Many Duplicates</option>
+            </select>
+            <span class="select-chevron">▾</span>
+          </div>
+        </div>
+
+        <div class="control-group slider-group">
+          <div class="slider-header">
+            <label class="field-label" for="sizeRange">Array Size (n)</label>
+            <span class="range-badge" id="sizeValue">8</span>
+          </div>
+          <div class="slider-track-wrap">
+            <input id="sizeRange" type="range" min="4" max="50" value="8" aria-label="Array Size">
+          </div>
+        </div>
+
+        <div class="control-group slider-group">
+          <div class="slider-header">
+            <label class="field-label" for="speedRange">Animation Speed</label>
+            <span class="range-badge" id="speedValue">Normal</span>
+          </div>
+          <div class="slider-track-wrap">
+            <input id="speedRange" type="range" min="1" max="100" value="45" aria-label="Animation Speed">
+          </div>
+          <div class="speed-presets">
+            <button type="button" class="speed-chip" data-speed="15">0.25×</button>
+            <button type="button" class="speed-chip active" data-speed="45">1×</button>
+            <button type="button" class="speed-chip" data-speed="75">2×</button>
+            <button type="button" class="speed-chip" data-speed="98">Blitz</button>
+          </div>
+        </div>
+
+        <div class="checkbox-row">
+          <label class="checkbox-label" for="autoPauseCheck">
+            <input type="checkbox" id="autoPauseCheck">
+            <span class="checkbox-custom"></span>
+            <span class="checkbox-text">Auto-pause on pass / partition milestone</span>
+          </label>
+        </div>
+
+        <div class="control-group custom-array-group">
+          <label class="field-label" for="customInput">Custom Array <span class="muted">(comma-separated)</span></label>
+          <textarea id="customInput" rows="2" placeholder="e.g. 42, 17, 8, 91, 33, 12"></textarea>
+          <button id="applyCustomBtn" class="secondary-btn">Apply Custom Array</button>
+        </div>
+
+        <div class="control-actions">
+          <button id="generateBtn" class="primary-btn">
+            <span class="btn-icon">↺</span> Generate New Array
+          </button>
+        </div>
+
+        <div class="shortcut-tips">
+          <div class="shortcut-title">⌨ <b>Keyboard Shortcuts:</b></div>
+          <div class="shortcut-grid">
+            <span><code>Space</code> Play / Pause</span>
+            <span><code>→</code> Next Step</span>
+            <span><code>←</code> Prev Step</span>
+            <span><code>R</code> Reset</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <section class="main-content">
+        <!-- VIVA STEP & LOGIC EXPLAINER CARD -->
+        <div class="viva-narration-card panel">
+          <div class="card-glow-bg"></div>
+          <div class="narration-header">
+            <div class="narration-tag-wrap">
+              <span class="action-tag" id="actionTag">READY</span>
+              <span class="phase-tag" id="phaseTag">Initialization</span>
+            </div>
+            <div class="step-indicator">
+              <span id="stepCounter">Step 0 of 0</span>
+              <span class="step-percent" id="stepPercent">(0%)</span>
+            </div>
+          </div>
+
+          <div class="narration-expression-row">
+            <div class="expression-box" id="narrationExpression">
+              Select an algorithm and click <b>Play</b> or <b>Next Step (→)</b> to begin step-by-step execution.
+            </div>
+          </div>
+
+          <div class="narration-body">
+            <p class="narration-why" id="narrationWhy">
+              Each step displays what elements are being compared, why a swap or write occurred, and what the algorithm achieved.
+            </p>
+            <div class="narration-invariant" id="narrationInvariant">
+              💡 <b>Viva Concept:</b> Algorithms are analyzed through <i>Loop Invariants</i>—conditions that are true before, during, and after each loop pass.
+            </div>
+          </div>
+        </div>
+
+        <!-- VISUALIZER MAIN PANEL -->
+        <div class="visualizer-panel panel">
+          <div class="panel-title-row">
+            <div>
+              <h3 id="visualizerTitle">Visualization Canvas</h3>
+              <p id="statusText">Ready — click Step Forward or Play to walk through.</p>
+            </div>
+            <div class="legend">
+              <span class="legend-item"><i class="legend-box default"></i> Unsorted</span>
+              <span class="legend-item"><i class="legend-box compare"></i> Comparing (j)</span>
+              <span class="legend-item"><i class="legend-box swap"></i> Swapping / Write</span>
+              <span class="legend-item"><i class="legend-box pivot"></i> Pivot / Min</span>
+              <span class="legend-item"><i class="legend-box sorted"></i> Sorted</span>
+            </div>
+          </div>
+
+          <!-- STEP CONTROLLER TOOLBAR -->
+          <div class="step-toolbar">
+            <div class="step-btn-group">
+              <button id="resetStepBtn" class="toolbar-btn" title="Reset to start (R)">
+                <span class="btn-symbol">⏮</span> <span class="btn-text">Reset</span>
+              </button>
+              <button id="prevStepBtn" class="toolbar-btn" title="Previous Step (Left Arrow)" disabled>
+                <span class="btn-symbol">◀</span> <span class="btn-text">Back</span>
+              </button>
+              <button id="playPauseBtn" class="toolbar-btn primary" title="Play or Pause (Space)">
+                <span class="btn-symbol">▶</span> <span class="btn-text">Play</span>
+              </button>
+              <button id="nextStepBtn" class="toolbar-btn primary-outline" title="Next Step (Right Arrow)">
+                <span class="btn-text">Next</span> <span class="btn-symbol">▶</span>
+              </button>
+            </div>
+            <div class="scrubber-wrap">
+              <label for="stepScrubber" class="sr-only">Step Progress Scrubber</label>
+              <div class="scrubber-bar-container">
+                <div class="scrubber-fill" id="scrubberFill"></div>
+                <input type="range" id="stepScrubber" min="0" max="0" value="0" title="Scrub to any step in the algorithm">
+              </div>
+            </div>
+          </div>
+
+          <!-- PRIMARY ARRAY VISUALIZER -->
+          <div id="visualizer" class="visualizer card-mode" aria-label="Sorting visualization elements"></div>
+
+          <!-- AUXILIARY DATA STRUCTURE AREA -->
+          <div id="auxContainer" class="aux-container">
+            <!-- Dynamically populated based on algorithm -->
+          </div>
+
+          <!-- ARRAY FOOTER -->
+          <div class="array-footer">
+            <div class="footer-stat">Min: <b id="minValue">—</b></div>
+            <div class="footer-stat">Max: <b id="maxValue">—</b></div>
+            <div class="footer-stat">Size (n): <b id="currentSize">—</b></div>
+            <div class="footer-stat">Inversions: <b id="inversionCount">0</b></div>
+            <div class="footer-stat">Order: <b id="orderState">Unsorted</b></div>
+          </div>
+        </div>
+
+        <!-- REAL-TIME METRICS GRID -->
+        <section class="metrics-grid">
+          <div class="metric-card metric-compare">
+            <div class="metric-header">
+              <span class="metric-icon">🔍</span>
+              <span class="metric-title">Comparisons</span>
+            </div>
+            <strong id="comparisons">0</strong>
+            <small class="metric-sub">Key comparisons</small>
+          </div>
+          <div class="metric-card metric-swap">
+            <div class="metric-header">
+              <span class="metric-icon">⇄</span>
+              <span class="metric-title">Swaps</span>
+            </div>
+            <strong id="swaps">0</strong>
+            <small class="metric-sub">Element exchanges</small>
+          </div>
+          <div class="metric-card metric-write">
+            <div class="metric-header">
+              <span class="metric-icon">✎</span>
+              <span class="metric-title">Writes</span>
+            </div>
+            <strong id="writes">0</strong>
+            <small class="metric-sub">Array assignments</small>
+          </div>
+          <div class="metric-card metric-access">
+            <div class="metric-header">
+              <span class="metric-icon">⚡</span>
+              <span class="metric-title">Array Accesses</span>
+            </div>
+            <strong id="accesses">0</strong>
+            <small class="metric-sub">Reads + Writes</small>
+          </div>
+          <div class="metric-card metric-step">
+            <div class="metric-header">
+              <span class="metric-icon">📍</span>
+              <span class="metric-title">Execution Step</span>
+            </div>
+            <strong id="stepMetric">0 / 0</strong>
+            <small class="metric-sub" id="elapsedMetric">Active run</small>
+          </div>
+        </section>
+
+        <!-- CODE & THEORY GRID -->
+        <section class="code-and-theory-grid">
+          <!-- PYTHON PSEUDOCODE PANEL -->
+          <div class="panel code-panel">
+            <div class="panel-title-row compact">
+              <div class="code-title-wrap">
+                <div class="window-dots" aria-hidden="true">
+                  <span class="dot dot-red"></span>
+                  <span class="dot dot-yellow"></span>
+                  <span class="dot dot-green"></span>
+                </div>
+                <h3>Python Pseudocode &amp; Implementation</h3>
+              </div>
+              <div class="code-actions">
+                <span class="code-badge">Python 3</span>
+                <button id="copyCodeBtn" class="pill-btn mini" title="Copy Python code to clipboard">📋 Copy Code</button>
+              </div>
+            </div>
+
+            <!-- CLEAN PYTHON CODE BOX (NON-SYNCHRONIZED) -->
+            <pre id="pythonCodeBox" class="python-code-box"><code id="pythonCodeDisplay"></code></pre>
+          </div>
+
+          <!-- COMPLEXITY & THEORETICAL ANALYSIS -->
+          <div class="panel complexity-panel">
+            <div class="panel-title-row compact">
+              <div>
+                <h3>Theoretical Complexity</h3>
+                <p>Formal asymptotic performance bounds.</p>
+              </div>
+            </div>
+            <div class="complexity-grid">
+              <div class="complexity-cell best">
+                <span>Best Case</span>
+                <strong id="bestCase">O(n)</strong>
+                <small id="bestCondition">Already sorted</small>
+              </div>
+              <div class="complexity-cell avg">
+                <span>Average Case</span>
+                <strong id="averageCase">O(n²)</strong>
+                <small>Random permutation</small>
+              </div>
+              <div class="complexity-cell worst">
+                <span>Worst Case</span>
+                <strong id="worstCase">O(n²)</strong>
+                <small id="worstCondition">Reverse order</small>
+              </div>
+              <div class="complexity-cell space">
+                <span>Aux Space</span>
+                <strong id="spaceCase">O(1)</strong>
+                <small id="spaceCondition">In-place auxiliary</small>
+              </div>
+            </div>
+
+            <div class="property-row">
+              <span id="stableBadge" class="badge">Stable</span>
+              <span id="inPlaceBadge" class="badge">In-place</span>
+              <span id="adaptiveBadge" class="badge">Adaptive</span>
+              <span id="comparisonBadge" class="badge">Comparison-based</span>
+            </div>
+
+            <div class="idea-box">
+              <h4 id="ideaTitle">Core Algorithmic Idea:</h4>
+              <p id="algorithmIdea"></p>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIVA QUESTIONS ACCORDION & INVARIANTS -->
+        <section class="panel viva-panel">
+          <div class="panel-title-row compact">
+            <div>
+              <h3>🎓 FAQs</h3>
+              <p>Key theoretical questions, loop invariants, and answers.</p>
+            </div>
+            <!-- <span class="viva-pill">Viva Prep</span> -->
+          </div>
+
+          <div class="viva-accordion" id="vivaAccordion">
+            <!-- Dynamically populated per algorithm -->
+          </div>
+        </section>
+
+        <!-- BENCHMARK PANEL -->
+        <section class="panel benchmark-panel">
+          <div class="panel-title-row compact">
+            <div>
+              <h3>Empirical Benchmark on Current Array</h3>
+              <p>Runs all 8 algorithms head-to-head on this exact array to verify complexity theories.</p>
+            </div>
+            <button id="benchmarkBtn" class="secondary-btn benchmark-action-btn">
+              <span>⚡</span> Run Benchmark
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table class="benchmark-table">
+              <thead>
+                <tr>
+                  <th>Algorithm</th>
+                  <th>Class</th>
+                  <th>Time (ms)</th>
+                  <th>Comparisons</th>
+                  <th>Swaps</th>
+                  <th>Writes</th>
+                  <th>Verification</th>
+                </tr>
+              </thead>
+              <tbody id="benchmarkBody">
+                <tr>
+                  <td colspan="7" class="muted-text">Click "Run Benchmark" to test all algorithms on the current array.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer-brand">
+        <b>DAA Viva Project</b> · Sorting Algorithm Visualizer
+      </div>
+      <div class="footer-note">
+        Pure HTML5, CSS3 &amp; Vanilla JavaScript · Zero External Libraries
+      </div>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
